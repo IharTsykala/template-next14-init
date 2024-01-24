@@ -55,6 +55,15 @@ jobs:
       - name: Debug SSH Key
         run: cat $HOME/.ssh/id_rsa
 
+      - name: Debug SSH Key
+        run: cat $HOME/.ssh/id_rsa
+
+      - name: Debug known_hosts
+        run: cat $HOME/.ssh/known_hosts
+
+      - name: Test SSH Connection (without key)
+        run: ssh -o StrictHostKeyChecking=no root@165.22.0.137 "echo Hello"
+
       - name: Update deployment on the server
         run: |
           ssh -i $HOME/.ssh/id_rsa root@165.22.0.137 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
