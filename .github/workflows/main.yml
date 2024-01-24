@@ -54,5 +54,4 @@ jobs:
 
       - name: Update deployment on the server
         run: |
-          ssh -i ~/.ssh/id_rsa root@165.22.0.137 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
-      
+          ssh -i /home/runner/.ssh/id_rsa root@165.22.0.137 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
