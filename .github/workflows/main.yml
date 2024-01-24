@@ -55,6 +55,11 @@ jobs:
       - name: Debug SSH Key
         run: cat $HOME/.ssh/id_rsa
 
+      - name: Debug SSH Key (reveal)
+        run: cat $HOME/.ssh/id_rsa
+        env:
+          ACTIONS_RUNNER_DEBUG: true
+
       - name: Debug SSH Key
         run: cat $HOME/.ssh/id_rsa
 
