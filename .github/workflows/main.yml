@@ -71,4 +71,4 @@ jobs:
 
       - name: Update deployment on the server
         run: |
-          ssh root@165.22.0.137 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
+          ssh -i "$SSH_PRIVATE_KEY" root@165.22.0.137 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
