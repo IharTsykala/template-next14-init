@@ -31,7 +31,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ env.GITHUB_USERNAME }}
-          password: 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
+          password: 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
 
       - name: Pull Docker container if exists
         run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }} || true
