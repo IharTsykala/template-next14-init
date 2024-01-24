@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE: ghcr.io/IharTsykala/template-next14-init-deploy
+  DOCKER_IMAGE: ghcr.io/IharTsykala/template-next14-init
   DOCKER_IMAGE_TAG: prod
   GITHUB_TOKEN: ${{ secrets.SECRET_GITHUB_TOKEN }}
   GITHUB_USERNAME: IharTsykala
@@ -31,7 +31,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ env.GITHUB_USERNAME }}
-          password: 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
+          password: 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
 
       - name: Pull Docker container if exists
         run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }} || true
