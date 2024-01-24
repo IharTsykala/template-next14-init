@@ -48,10 +48,10 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p $HOME/.ssh
-          echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDik4QGCYXzexP+ZF3IJxWwZ6y2EcQQPSN2oZX037Xnern3LiREqAFvKnJIMcfb9uRMX5USrrWXg46QfjMCSMjdiI/TnZ9hAE4T8Ah3UqtQ7uiWiTxCrebOTp0zivt3j+h6cYwQSGnIViljOEFBEtu70owbJBNqQv8vPZBme0EZIozSd9nIoDq7iM0hT6mdMxtAfsk78ROGuIr09ULUtOR4mUogyxNnh29TOHmq/MWw4zESiTHK/cOzcslVmvK5SMYVzoc43FxeUpuUI7lUGBunI04J22dZT6nML7Cfl/v1QV52JrE347dpAish7REtvIOs8KjkyeFlL0iKJH4Za99t ihartsykala@Ihars-MacBook-Pro.local" > $HOME/.ssh/id_rsa
+          echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_rsa
           chmod 600 $HOME/.ssh/id_rsa
           ssh-keyscan 165.22.0.137 >> $HOME/.ssh/known_hosts
-
-      - name: Update deployment on the server
-        run: |
-          ssh -i /home/runner/.ssh/id_rsa root@165.22.0.137 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
+          
+          - name: Update deployment on the server
+          run: |
+          ssh -i $HOME/.ssh/id_rsa root@165.22.0.137 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
