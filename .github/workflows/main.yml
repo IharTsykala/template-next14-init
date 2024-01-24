@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE: ghcr.io/IharTsykala/template-next14-init
+  DOCKER_IMAGE: ghcr.io/ihartsykala/template-next14-init
   DOCKER_IMAGE_TAG: prod
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GITHUB_USERNAME: IharTsykala
