@@ -66,8 +66,8 @@ jobs:
       - name: Debug known_hosts
         run: cat $HOME/.ssh/known_hosts
 
-      - name: Test SSH Connection (without key)
-        run: ssh -o StrictHostKeyChecking=no root@165.22.0.137 "echo Hello"
+#      - name: Test SSH Connection (without key)
+#        run: ssh -o StrictHostKeyChecking=no root@165.22.0.137 "echo Hello"
 
       - name: Deploy to Digital Ocean droplet via SSH
         uses: appleboy/ssh-action@v0.1.3
