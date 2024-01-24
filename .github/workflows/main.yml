@@ -11,7 +11,7 @@ on:
 env:
   DOCKER_IMAGE: ghcr.io/IharTsykala/template-next14-init
   DOCKER_IMAGE_TAG: prod
-  GITHUB_TOKEN: ${{ secrets.SECRET_GITHUB_TOKEN }}
+  GITHUB_TOKEN: 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
   GITHUB_USERNAME: IharTsykala
 
 defaults:
@@ -30,7 +30,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ env.GITHUB_USERNAME }}
+          username: IharTsykala
           password: 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
 
       - name: Pull Docker container if exists
