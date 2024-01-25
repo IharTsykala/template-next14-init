@@ -77,4 +77,4 @@ jobs:
           docker run -d \
             --restart always \
             --name ${{ env.DOCKER_IMAGE }} \
-            ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG | head -c7 }}
+            ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }} | substring(0,7)
