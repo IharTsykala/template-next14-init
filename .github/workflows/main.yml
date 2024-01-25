@@ -2,9 +2,10 @@ name: template-next14-init-deploy
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
+
   workflow_dispatch:
 
 env:
@@ -29,22 +30,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Docker dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get remove -y containerd.io
-          sudo apt-get install -y docker.io
-          sudo usermod -aG docker $USER
-
-      - name: Set up Docker
-        uses: docker/setup-docker@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          dockerfile: Dockerfile
-
-      - name: Log in to GitHub Container Registry
+      - name: log in to gitHub container registry
         uses: docker/login-action@v1
         with:
           registry: ${{ env.REGISTRY }}
@@ -68,7 +54,33 @@ jobs:
           ssh-keyscan -t rsa 159.223.170.64 >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Run deployment script
+      - name: Pull Docker image from registry
+        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
+
+      - name: Deploy to Digital Ocean droplet via SSH action
+        uses: docker/login-action@v1
+        with:
+            registry: ${{ env.REGISTRY }}
+            username: ${{ env.GITHUB_USERNAME }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Stop and remove existing container
         run: |
-          chmod +x deploy_script.sh
-          ./deploy_script.sh ${{ env.DOCKER_IMAGE }} ${{ env.DOCKER_IMAGE_TAG }}
+          docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
+          docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
+
+      - name: Run a new container from a new image
+        run: |
+          docker run -d \
+            --restart always \
+            --name $(echo ${{ env.DOCKER_IMAGE }}) \
+          
+          # Run a new container from a new image
+              docker run -d \
+                --restart always \
+                --name $(echo ${{ env.DOCKER_IMAGE }}) \
+                $(echo ${{ env.REGISTRY }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
+
+#      - name: Deploy to server
+#        run: |
+#          ssh -i ~/.ssh/id_rsa root@159.223.170.64
