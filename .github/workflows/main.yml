@@ -13,6 +13,7 @@ env:
   DOCKER_IMAGE_TAG: prod
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GITHUB_USERNAME: ihartsykala
+  REGISTRY: ghcr.io
 
 defaults:
   run:
@@ -32,7 +33,7 @@ jobs:
       - name: log in to gitHub container registry
         uses: docker/login-action@v1
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ env.GITHUB_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -56,14 +57,25 @@ jobs:
       - name: Pull Docker image from registry
         run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
 
-      - name: Run Docker container on the server
-        run: |
-          ssh -i ~/.ssh/id_rsa root@159.223.170.64 <<EOF
-          eval \$(docker-machine env my-docker-machine)
-          docker stop \$(docker ps -aq) || true
-          docker rm \$(docker ps -aq) || true
-          docker run -d -p 80:3000 ghcr.io/ihartsykala/template-next14-init:prod
-          EOF
+      - name: Deploy to Digital Ocean droplet via SSH action
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+            host: 159.223.170.64
+            username: ${{ env.GITHUB_USERNAME }}
+            key: ${{ secrets.GITHUB_TOKEN }}
+            script: |
+              # Login to registry
+              docker login -u ${{ secrets.SSH_PRIVATE_KEY }} -p ${{ secrets.SSH_PRIVATE_KEY }} registry.digitalocean.com
+              
+              # Stop and remove existing container
+              docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
+              docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
+              
+              # Run a new container from a new image
+              docker run -d \
+                --restart always \
+                --name $(echo ${{ env.DOCKER_IMAGE }}) \
+                $(echo ${{ env.${{ env.REGISTRY }} }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
 
 #      - name: Deploy to server
 #        run: |
