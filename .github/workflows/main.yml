@@ -75,7 +75,7 @@ jobs:
               docker run -d \
                 --restart always \
                 --name $(echo ${{ env.DOCKER_IMAGE }}) \
-                $(echo ${{ env.${{ env.REGISTRY }} }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
+                $(echo ${{ env.REGISTRY }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
 
 #      - name: Deploy to server
 #        run: |
