@@ -65,8 +65,8 @@ jobs:
 
       - name: Run Docker container on the server
         run: |
-          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "docker stop \$(docker ps -aq) || true && docker rm \$(docker ps -aq) || true"
-          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "docker run -d -p 80:3000 ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}"
+          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "/usr/bin/docker stop \$(/usr/bin/docker ps -aq) || true && /usr/bin/docker rm \$(/usr/bin/docker ps -aq) || true"
+          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "/usr/bin/docker run -d -p 80:3000 ghcr.io/ihartsykala/template-next14-init:prod"
 
 #      - name: Deploy to server
 #        run: |
