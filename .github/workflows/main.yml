@@ -63,7 +63,7 @@ jobs:
             registry: ${{ env.REGISTRY }}
             username: ${{ env.GITHUB_USERNAME }}
             password: ${{ secrets.GITHUB_TOKEN }}
-        script: |
+        run: |
               # Stop and remove existing container
               docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
               docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
