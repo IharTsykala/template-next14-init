@@ -64,10 +64,7 @@ jobs:
             username: ${{ env.GITHUB_USERNAME }}
             key: ${{ secrets.GITHUB_TOKEN }}
             script: |
-              # Login to registry
-              docker login -u ${{ secrets.SSH_PRIVATE_KEY }} -p ${{ secrets.SSH_PRIVATE_KEY }} registry.digitalocean.com
-              
-              # Stop and remove existing container
+               # Stop and remove existing container
               docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
               docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
               
