@@ -19,46 +19,15 @@ defaults:
   run:
     shell: bash
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Docker Build
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ghcr.io/ihartsykala/nextjs-app:latest
-
-      - name: SSH into server and run docker-compose
-        uses: appleboy/ssh-action@master
-        with:
-          host: 159.223.170.64
-          username: ihartsykala
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd .
-            docker-compose pull
-            docker-compose up -d    
-
 #jobs:
 #  deploy:
 #    runs-on: ubuntu-latest
 #
 #    steps:
 #      - name: Checkout code
-#        uses: actions/checkout@v3
+#        uses: actions/checkout@v2
 #
-#      - name: Set up Docker Buildx
+#      - name: Set up Docker Build
 #        uses: docker/setup-buildx-action@v1
 #
 #      - name: Build and push Docker image
@@ -70,17 +39,48 @@ jobs:
 #          push: true
 #          tags: ghcr.io/ihartsykala/nextjs-app:latest
 #
-#      - name: SSH into server and pull the image
+#      - name: SSH into server and run docker-compose
 #        uses: appleboy/ssh-action@master
 #        with:
 #          host: 159.223.170.64
 #          username: ihartsykala
 #          key: ${{ secrets.SSH_PRIVATE_KEY }}
 #          script: |
-#            docker pull ghcr.io/yourusername/nextjs-app:latest
-#            docker stop nextjs-app || true
-#            docker rm nextjs-app || true
-#            docker run -d --name nextjs-app -p 3000:3000 ghcr.io/yourusername/nextjs-app:latest
+#            cd .
+#            docker-compose pull
+#            docker-compose up -d
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/ihartsykala/nextjs-app:latest
+
+      - name: SSH into server and pull the image
+        uses: appleboy/ssh-action@master
+        with:
+          host: 159.223.170.64
+          username: ihartsykala
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull ghcr.io/yourusername/nextjs-app:latest
+            docker stop nextjs-app || true
+            docker rm nextjs-app || true
+            docker run -d --name nextjs-app -p 3000:3000 ghcr.io/yourusername/nextjs-app:latest
 
 #jobs:
 #  publish:
