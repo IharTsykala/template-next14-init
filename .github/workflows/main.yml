@@ -61,4 +61,4 @@ jobs:
 
       - name: Deploy to server
         run: |
-          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
+          ssh -i ~/.ssh/id_rsa root@159.223.170.64"
