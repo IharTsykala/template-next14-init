@@ -88,6 +88,10 @@ defaults:
 
 jobs:
   publish:
+    permissions:
+      contents: read
+      packages: write
+
     name: publish image
     runs-on: ubuntu-latest
 
@@ -102,6 +106,10 @@ jobs:
           docker push template-next14-init
 
   deploy:
+    permissions:
+      contents: read
+      packages: write
+
     needs: publish
     name: deploy image
     runs-on: ubuntu-latest
