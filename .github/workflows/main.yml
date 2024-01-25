@@ -37,9 +37,8 @@ jobs:
           sudo usermod -aG docker $USER
 
       - name: Set up Docker
-        uses: docker://ghcr.io/docker/build-push-action@v2
+        uses: docker://ghcr.io/docker/build-push-action:v2
         with:
-          image: ghcr.io/docker/build-push-action:v2
           entrypoint: |
             docker --version
             docker-compose --version
