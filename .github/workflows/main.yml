@@ -60,11 +60,11 @@ jobs:
       - name: Deploy to Digital Ocean droplet via SSH action
         uses: docker/login-action@v1
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ env.GITHUB_USERNAME }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-               # Stop and remove existing container
+            registry: ${{ env.REGISTRY }}
+            username: ${{ env.GITHUB_USERNAME }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+              # Stop and remove existing container
               docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
               docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
               
