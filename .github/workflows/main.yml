@@ -57,6 +57,13 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}"
           
           cat ~/.ssh/id_rsa
+          
+          chmod 700 ~/.ssh
+          
+          chmod 600 ~/.ssh/authorized_keys
+
+          # Add SSH key to authorized_keys on the server
+          cat ~/.ssh/id_rsa.pub | ssh -i ~/.ssh/id_rsa root@159.223.170.64 'cat >> ~/.ssh/authorized_keys'
 
       - name: Deploy to server
         run: |
