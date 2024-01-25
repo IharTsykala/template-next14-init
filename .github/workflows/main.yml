@@ -55,6 +55,8 @@ jobs:
           
           echo "SSH private key:"
           echo "$SSH_PRIVATE_KEY"
+          
+          cat ~/.ssh/id_rsa
 
       - name: Deploy to server
         run: |
