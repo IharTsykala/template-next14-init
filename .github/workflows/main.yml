@@ -37,14 +37,12 @@ jobs:
           sudo usermod -aG docker $USER
 
       - name: Set up Docker
-        uses: docker://ghcr.io/docker/build-push-action:v2
-        env:
-          DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
+        uses: docker/setup-docker@v2
         with:
-          entrypoint: |
-            echo $DOCKER_PAT | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-            docker --version
-            docker-compose --version
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile: Dockerfile
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v1
