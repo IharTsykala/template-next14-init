@@ -63,16 +63,18 @@ jobs:
             registry: ${{ env.REGISTRY }}
             username: ${{ env.GITHUB_USERNAME }}
             password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Stop and remove existing container
         run: |
-              # Stop and remove existing container
-              docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
-              docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
-              
-              # Run a new container from a new image
-              docker run -d \
-                --restart always \
-                --name $(echo ${{ env.DOCKER_IMAGE }}) \
-                $(echo ${{ env.REGISTRY }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
+          docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
+          docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
+
+      - name: Run a new container from a new image
+        run: |
+          docker run -d \
+            --restart always \
+            --name $(echo ${{ env.DOCKER_IMAGE }}) \
+            $(echo ${{ env.REGISTRY }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
 
 #      - name: Deploy to server
 #        run: |
