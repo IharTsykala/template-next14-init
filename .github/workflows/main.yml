@@ -63,10 +63,17 @@ jobs:
       - name: Pull Docker image from registry
         run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
 
-      - name: Set up Docker Machine
+      - name: Install Docker Machine
         run: |
-          docker-machine create --driver generic --generic-ip-address=${{ env.REMOTE_SERVER_IP }} remote-docker-machine
-          eval $(docker-machine env remote-docker-machine)
+          curl -L https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-$(uname -s)-$(uname -m) >/tmp/docker-machine
+          sudo install /tmp/docker-machine /usr/local/bin/docker-machine
+          rm /tmp/docker-machine
+
+      - name: Create Docker Machine
+        run: docker-machine create --driver generic --generic-ip-address=${{ env.REMOTE_SERVER_IP }} remote-docker-machine
+
+      - name: Set up Docker Machine environment
+        run: eval $(docker-machine env remote-docker-machine)
 
       - name: Run Docker container on the server
         run: |
