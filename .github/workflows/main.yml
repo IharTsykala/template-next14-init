@@ -86,36 +86,113 @@ defaults:
 #            docker rm nextjs-app || true
 #            docker run -d --name nextjs-app -p 3000:3000 ghcr.io/ihartsykala/template-next14-init
 
+#jobs:
+#  publish:
+#    permissions:
+#      contents: read
+#      packages: write
+#
+#    name: publish image
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Login
+#        run: |
+#          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+#      - name: Build and Publish
+#        run: |
+#          docker build . -t template-next14-init
+#          docker push template-next14-init
+#
+#  deploy:
+#    permissions:
+#      contents: read
+#      packages: write
+#
+#    needs: publish
+#    name: deploy image
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: install ssh keys
+#        # check this thread to understand why its needed:
+#        # <https://stackoverflow.com/a/70447517>
+#        run: |
+#          install -m 600 -D /dev/null ~/.ssh/id_rsa
+#          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+#      - name: connect and pull
+#        run: ssh ${{ secrets.SSH_USER }}@159.223.170.64 "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d && exit"
+#      - name: cleanup
+#        run: rm -rf ~/.ssh
+
 jobs:
-  publish:
-    permissions:
-      contents: read
-      packages: write
-
-    name: publish image
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Login
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-      - name: Build and Publish
-        run: |
-          docker build . -t template-next14-init
-          docker push template-next14-init
-
   deploy:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
-    needs: publish
-    name: deploy image
-    runs-on: ubuntu-latest
-
     steps:
-      - name: install ssh keys
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: log in to gitHub container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.GITHUB_USERNAME }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Docker container if exists
+        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }} || true
+
+      - name: Build, tag, and push image to registry
+        id: build-image
+        run: |
+          docker build -f Dockerfile -t ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }} .
+          docker push ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
+
+      - name: Set up SSH key and deploy to server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 700 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa 159.223.170.64 >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Pull Docker image from registry
+        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
+
+      - name: Deploy to Digital Ocean droplet via SSH action
+        uses: docker/login-action@v1
+        with:
+            registry: ${{ env.REGISTRY }}
+            username: ${{ env.GITHUB_USERNAME }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Stop and remove existing container
+        run: |
+          docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
+          docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
+
+#      - name: Run a new container from a new image
+#        run: |
+#          docker run -d \
+#            --restart always \
+#            --name $(echo ${{ env.DOCKER_IMAGE }}) \
+
+#          # Run a new container from a new image
+#              docker run -d \
+#                --restart always \
+#                --name $(echo ${{ env.DOCKER_IMAGE }}) \
+#                $(echo ${{ env.REGISTRY }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
+
+      - name: Deploy to server
+#        run: |
+#          ssh -i ~/.ssh/id_rsa root@159.223.170.64
+#            - name: install ssh keys
         # check this thread to understand why its needed:
         # <https://stackoverflow.com/a/70447517>
         run: |
@@ -123,72 +200,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
       - name: connect and pull
-        run: ssh ${{ secrets.SSH_USER }}@159.223.170.64 "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d && exit"
+        run: ssh root@159.223.170.64 "cd . && docker compose pull && docker compose up -d && exit"
       - name: cleanup
         run: rm -rf ~/.ssh
-
-#jobs:
-#  deploy:
-#    runs-on: ubuntu-latest
-#    permissions:
-#      contents: read
-#      packages: write
-#
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      - name: log in to gitHub container registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ${{ env.REGISTRY }}
-#          username: ${{ env.GITHUB_USERNAME }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: Pull Docker container if exists
-#        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }} || true
-#
-#      - name: Build, tag, and push image to registry
-#        id: build-image
-#        run: |
-#          docker build -f Dockerfile -t ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }} .
-#          docker push ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
-#
-#      - name: Set up SSH key and deploy to server
-#        run: |
-#          mkdir -p ~/.ssh
-#          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-#          chmod 700 ~/.ssh/id_rsa
-#          ssh-keyscan -t rsa 159.223.170.64 >> ~/.ssh/known_hosts
-#          chmod 644 ~/.ssh/known_hosts
-#
-#      - name: Pull Docker image from registry
-#        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
-#
-#      - name: Deploy to Digital Ocean droplet via SSH action
-#        uses: docker/login-action@v1
-#        with:
-#            registry: ${{ env.REGISTRY }}
-#            username: ${{ env.GITHUB_USERNAME }}
-#            password: ${{ secrets.GITHUB_TOKEN }}
-#
-#      - name: Stop and remove existing container
-#        run: |
-#          docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
-#          docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
-#
-#      - name: Run a new container from a new image
-#        run: |
-##          docker run -d \
-##            --restart always \
-##            --name $(echo ${{ env.DOCKER_IMAGE }}) \
-#
-##          # Run a new container from a new image
-##              docker run -d \
-##                --restart always \
-##                --name $(echo ${{ env.DOCKER_IMAGE }}) \
-##                $(echo ${{ env.REGISTRY }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
-#
-#      - name: Deploy to server
-#        run: |
-#          ssh -i ~/.ssh/id_rsa root@159.223.170.64
