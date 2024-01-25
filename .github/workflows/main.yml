@@ -84,7 +84,7 @@ jobs:
             docker pull ghcr.io/ihartsykala/template-next14-init
             docker stop nextjs-app || true
             docker rm nextjs-app || true
-            docker run -d --name nextjs-app -p 3000:3000 ghcr.io/yourusername/nextjs-app:latest
+            docker run -d --name nextjs-app -p 3000:3000 ghcr.io/ihartsykala/template-next14-init
 
 #jobs:
 #  publish:
