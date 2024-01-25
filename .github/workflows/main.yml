@@ -58,7 +58,16 @@ jobs:
           
           echo "SSH private key2:"
           cat ~/.ssh/id_rsa
+          
 
-      - name: Deploy to server
+      - name: Pull Docker image from registry
+        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
+
+      - name: Run Docker container on the server
         run: |
-          ssh -i ~/.ssh/id_rsa root@159.223.170.64
+          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "docker stop \$(docker ps -aq) || true && docker rm \$(docker ps -aq) || true"
+          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "docker run -d -p 80:3000 ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}"
+
+#      - name: Deploy to server
+#        run: |
+#          ssh -i ~/.ssh/id_rsa root@159.223.170.64
