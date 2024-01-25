@@ -53,11 +53,7 @@ jobs:
           ssh-keyscan -t rsa 159.223.170.64 >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Truncate Docker Image Tag
-        id: truncate-tag
-        run: echo "::set-output name=TRUNCATED_TAG::${{ env.DOCKER_IMAGE_TAG:0:7 }}"
-
-      - name: Deploy to Digital Ocean droplet via SSH
+      - name: Truncate Docker Image Tag and Deploy
         run: |
-          TRUNCATED_TAG=$(echo ${{ steps.truncate-tag.outputs.TRUNCATED_TAG }})
+          TRUNCATED_TAG=$(echo "${{ env.DOCKER_IMAGE_TAG }}" | cut -c 1-7)
           ssh -i ~/.ssh/id_rsa root@159.223.170.64 "docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }} && docker stop ${{ env.DOCKER_IMAGE }} || true && docker rm ${{ env.DOCKER_IMAGE }} || true && docker run -d --restart always --name ${{ env.DOCKER_IMAGE }} ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:${{ TRUNCATED_TAG }}"
