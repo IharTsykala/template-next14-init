@@ -71,9 +71,9 @@ jobs:
 
       - name: Run a new container from a new image
         run: |
-          docker run -d \
-            --restart always \
-            --name $(echo ${{ env.DOCKER_IMAGE }}) \
+#          docker run -d \
+#            --restart always \
+#            --name $(echo ${{ env.DOCKER_IMAGE }}) \
           
 #          # Run a new container from a new image
 #              docker run -d \
