@@ -70,7 +70,7 @@ jobs:
           rm /tmp/docker-machine
 
       - name: Create Docker Machine
-        run: docker-machine create --driver generic --generic-ip-address=${{ env.REMOTE_SERVER_IP }} remote-docker-machine
+        run: docker-machine create --driver generic --generic-ip-address=159.223.170.64} remote-docker-machine
 
       - name: Set up Docker Machine environment
         run: eval $(docker-machine env remote-docker-machine)
