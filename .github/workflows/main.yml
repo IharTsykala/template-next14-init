@@ -50,74 +50,74 @@ defaults:
 #            docker-compose pull
 #            docker-compose up -d
 
-jobs:
-  deploy:
-    permissions:
-      contents: read
-      packages: write
+#jobs:
+#  deploy:
+#    permissions:
+#      contents: read
+#      packages: write
+#
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v1
+#
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v2
+#        with:
+#          context: .
+#          file: ./Dockerfile
+#          platforms: linux/amd64
+#          push: true
+#          tags: ghcr.io/ihartsykala/nextjs-app:latest
+#
+#      - name: SSH into server and pull the image
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: 159.223.170.64
+#          username: ihartsykala
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          script: |
+#            docker pull ghcr.io/ihartsykala/template-next14-init
+#            docker stop nextjs-app || true
+#            docker rm nextjs-app || true
+#            docker run -d --name nextjs-app -p 3000:3000 ghcr.io/ihartsykala/template-next14-init
 
+jobs:
+  publish:
+    name: publish image
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - name: Login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build and Publish
+        run: |
+          docker build . --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+  deploy:
+    needs: publish
+    name: deploy image
+    runs-on: ubuntu-latest
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ghcr.io/ihartsykala/nextjs-app:latest
-
-      - name: SSH into server and pull the image
-        uses: appleboy/ssh-action@master
-        with:
-          host: 159.223.170.64
-          username: ihartsykala
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            docker pull ghcr.io/ihartsykala/template-next14-init
-            docker stop nextjs-app || true
-            docker rm nextjs-app || true
-            docker run -d --name nextjs-app -p 3000:3000 ghcr.io/ihartsykala/template-next14-init
-
-#jobs:
-#  publish:
-#    name: publish image
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Login
-#        run: |
-#          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-#      - name: Build and Publish
-#        run: |
-#          docker build . --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-#          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-#
-#  deploy:
-#    needs: publish
-#    name: deploy image
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: install ssh keys
-#        # check this thread to understand why its needed:
-#        # <https://stackoverflow.com/a/70447517>
-#        run: |
-#          install -m 600 -D /dev/null ~/.ssh/id_rsa
-#          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-#          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
-#      - name: connect and pull
-#        run: ssh ${{ secrets.SSH_USER }}@159.223.170.64 "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d && exit"
-#      - name: cleanup
-#        run: rm -rf ~/.ssh
+    steps:
+      - name: install ssh keys
+        # check this thread to understand why its needed:
+        # <https://stackoverflow.com/a/70447517>
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+      - name: connect and pull
+        run: ssh ${{ secrets.SSH_USER }}@159.223.170.64 "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d && exit"
+      - name: cleanup
+        run: rm -rf ~/.ssh
 
 #jobs:
 #  deploy:
