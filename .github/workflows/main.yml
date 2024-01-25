@@ -57,7 +57,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}"
           
           echo "SSH private key2:"
-          echo cat ~/.ssh/id_rsa
+          cat ~/.ssh/id_rsa
 
       - name: Deploy to server
         run: |
