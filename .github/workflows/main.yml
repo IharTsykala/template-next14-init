@@ -50,9 +50,9 @@ jobs:
             mkdir -p ~/.ssh
             echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
             chmod 600 ~/.ssh/id_rsa
-            ssh-keyscan -t rsa 159.223.170.64 >> ~/.ssh/known_hosts
+            ssh-keyscan -t rsa 143.244.160.161 >> ~/.ssh/known_hosts
             chmod 644 ~/.ssh/known_hosts
 
       - name: Deploy to server
         run: |
-          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
+          ssh -i ~/.ssh/id_rsa root@143.244.160.161 "cd /var/www/html && docker system prune -f && docker-compose pull && docker-compose up -d"
