@@ -99,7 +99,7 @@ jobs:
       - name: Build and Publish
         run: |
           docker build . -t template-next14-init
-          docker push ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}
+          docker push template-next14-init
 
   deploy:
     needs: publish
