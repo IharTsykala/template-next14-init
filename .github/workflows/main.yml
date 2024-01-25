@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
   workflow_dispatch:
 
 env:
@@ -29,14 +30,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Log in to GitHub Container Registry
+      - name: log in to gitHub container registry
         uses: docker/login-action@v1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ env.GITHUB_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull Docker container if it exists
+      - name: Pull Docker container if exists
         run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }} || true
 
       - name: Build, tag, and push image to registry
@@ -59,22 +60,27 @@ jobs:
       - name: Deploy to Digital Ocean droplet via SSH action
         uses: docker/login-action@v1
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ env.GITHUB_USERNAME }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+            registry: ${{ env.REGISTRY }}
+            username: ${{ env.GITHUB_USERNAME }}
+            password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Stop and remove existing container
         run: |
-          docker stop ${{ env.DOCKER_IMAGE }} || true
-          docker rm ${{ env.DOCKER_IMAGE }} || true
+          docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
+          docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
 
       - name: Run a new container from a new image
         run: |
           docker run -d \
             --restart always \
-            --name ${{ env.DOCKER_IMAGE }}
+            --name $(echo ${{ env.DOCKER_IMAGE }}) \
+          
+          # Run a new container from a new image
+              docker run -d \
+                --restart always \
+                --name $(echo ${{ env.DOCKER_IMAGE }}) \
+                $(echo ${{ env.REGISTRY }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
 
-          docker run -d \
-            --restart always \
-            --name ${{ env.DOCKER_IMAGE }} \
-            ${{ env.REGISTRY }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
+      - name: Deploy to server
+        run: |
+          ssh -i ~/.ssh/id_rsa root@159.223.170.64
