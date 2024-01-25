@@ -52,6 +52,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa 159.223.170.64 >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
+          
+          echo "SSH private key:"
+          echo "$SSH_PRIVATE_KEY"
 
       - name: Deploy to server
         run: |
