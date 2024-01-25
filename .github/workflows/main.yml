@@ -65,7 +65,7 @@ jobs:
 
       - name: Run Docker container on the server
         run: |
-          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "docker stop $(docker ps -aq) || docker rm $(docker ps -aq) || rm \$(/usr/bin/docker ps -aq) || true"
+          ssh -i ~/.ssh/id_rsa root@159.223.170.64 "docker stop $(docker ps -aq) || docker rm $(docker ps -aq) || rm \$(docker ps -aq) || true"
           ssh -i ~/.ssh/id_rsa root@159.223.170.64 "docker run -d -p 80:3000 ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}"
 
 #      - name: Deploy to server
