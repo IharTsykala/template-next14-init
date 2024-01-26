@@ -183,6 +183,8 @@ jobs:
           ssh root@159.223.170.64 docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
       - name: Deploy to server
         run: |
+          ssh root@159.223.170.64 "docker stop my-container || true"
+          ssh root@159.223.170.64 "docker rm my-container || true"
           ssh root@159.223.170.64 "docker run -d --name my-container -p 80:3000 ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}"
       - name: cleanup
         run: rm -rf ~/.ssh
