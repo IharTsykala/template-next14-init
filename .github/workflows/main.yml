@@ -162,8 +162,8 @@ jobs:
           ssh-keyscan -t rsa 159.223.170.64 >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
-      - name: Pull Docker image from registry
-        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
+#      - name: Pull Docker image from registry
+#        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
 
       - name: Deploy to Digital Ocean droplet via SSH action
         uses: docker/login-action@v1
@@ -211,6 +211,6 @@ jobs:
           fi
       - name: Deploy to server
         run: |
-          ssh root@159.223.170.64 "docker-compose up -d"
+          ssh root@159.223.170.64 "docker run -d --name my-container -p 80:3000 ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}"
       - name: cleanup
         run: rm -rf ~/.ssh
