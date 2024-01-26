@@ -199,9 +199,18 @@ jobs:
           install -m 600 -D /dev/null ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           ssh-keyscan -t rsa 159.223.170.64 > ~/.ssh/known_hosts
-      - name: connect and pull
+      - name: Check if Docker pull was successful
         run: |
-          ssh root@159.223.170.64 "docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}"
+          result=$(ssh root@159.223.170.64 "docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}")
+          if [[ $result == *"Pull complete"* ]]; then
+            echo "Docker pull was successful."
+          else
+            echo "Error: Docker pull failed."
+            echo "Details: $result"
+            exit 1
+          fi
+      - name: Deploy to server
+        run: |
           ssh root@159.223.170.64 "docker-compose up -d"
       - name: cleanup
         run: rm -rf ~/.ssh
