@@ -161,17 +161,38 @@ jobs:
           chmod 700 ~/.ssh/id_rsa
           ssh-keyscan -t rsa 159.223.170.64 >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
+
+#      - name: Pull Docker image from registry
+#        run: docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
+
       - name: Deploy to Digital Ocean droplet via SSH action
         uses: docker/login-action@v1
         with:
             registry: ${{ env.REGISTRY }}
             username: ${{ env.GITHUB_USERNAME }}
             password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Stop and remove existing container
         run: |
           docker stop $(echo ${{ env.DOCKER_IMAGE }}) || true
           docker rm $(echo ${{ env.DOCKER_IMAGE }}) || true
+
+#      - name: Run a new container from a new image
+#        run: |
+#          docker run -d \
+#            --restart always \
+#            --name $(echo ${{ env.DOCKER_IMAGE }}) \
+
+#          # Run a new container from a new image
+#              docker run -d \
+#                --restart always \
+#                --name $(echo ${{ env.DOCKER_IMAGE }}) \
+#                $(echo ${{ env.REGISTRY }})/$(echo ${{ env.DOCKER_IMAGE }}):$(echo ${{ env.DOCKER_IMAGE_TAG }} | head -c7)
+
       - name: Deploy to server
+#        run: |
+#          ssh -i ~/.ssh/id_rsa root@159.223.170.64
+#            - name: install ssh keys
         # check this thread to understand why its needed:
         # <https://stackoverflow.com/a/70447517>
         run: |
@@ -180,7 +201,14 @@ jobs:
           ssh-keyscan -t rsa 159.223.170.64 > ~/.ssh/known_hosts
       - name: Check if Docker pull was successful
         run: |
-          ssh root@159.223.170.64 "docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}
+          result=$(ssh root@159.223.170.64 "docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}")
+          if [[ $result == *"Pull complete"* ]]; then
+            echo "Docker pull was successful."
+          else
+            echo "Error: Docker pull failed."
+            echo "Details: $result"
+            exit 1
+          fi
       - name: Deploy to server
         run: |
           ssh root@159.223.170.64 "docker run -d --name my-container -p 80:3000 ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_IMAGE_TAG }}"
